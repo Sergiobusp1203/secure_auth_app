@@ -19,9 +19,9 @@ router.get('/profile', async (req, res) => {
 
 // POST: Registro
 router.post('/register', [
-  body('username').isLength({ min: 3 }).trim().escape(),
-  body('email').isEmail().normalizeEmail(),
-  body('password').isStrongPassword()
+  body('username').isLength({ min: 3 }).trim().escape(), // 🛡️ A03
+  body('email').isEmail().normalizeEmail(), // 🛡️ A03
+  body('password').isStrongPassword() // 🛡️ A07
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).send("Error en los datos");
@@ -45,9 +45,12 @@ router.post('/register', [
 // POST: Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  
+  // 🛡️ A07: Previene enumeración de usuarios
   const user = await User.findOne({ email });
   if (!user) return res.status(401).send("Credenciales inválidas");
 
+  // 🛡️ A02 + A07: Comparación segura de contraseña
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(401).send("Credenciales inválidas");
 
